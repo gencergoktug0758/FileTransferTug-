@@ -46,58 +46,6 @@ Modern, güvenli ve kullanıcı dostu dosya paylaşım platformu. Kullanıcı si
 - Node.js (v14 veya üzeri)
 - npm veya yarn
 
-### Yerel Kurulum
-
-#### 1. Projeyi İndirin
-```bash
-git clone https://github.com/kullaniciadi/dosypaylaşım.git
-cd dosypaylaşım
-```
-
-#### 2. Bağımlılıkları Yükleyin
-```bash
-npm install
-```
-
-#### 3. Sunucuyu Başlatın
-```bash
-npm start
-```
-
-#### 4. Tarayıcıda Açın
-```
-http://localhost:3000
-```
-
-### Vercel Deployment
-
-#### 1. Vercel CLI Kurulumu
-```bash
-npm i -g vercel
-```
-
-#### 2. Vercel'e Giriş
-```bash
-vercel login
-```
-
-#### 3. Projeyi Deploy Edin
-```bash
-vercel
-```
-
-#### 4. Production Deploy
-```bash
-vercel --prod
-```
-
-#### Alternatif: GitHub ile Deploy
-1. Projeyi GitHub'a push edin
-2. Vercel dashboard'a gidin
-3. "New Project" tıklayın
-4. GitHub repository'nizi seçin
-5. Deploy edin
-
 ### Adımlar
 
 1. **Projeyi klonlayın:**
@@ -286,7 +234,7 @@ Hata bulduysanız lütfen [Issues](https://github.com/gencergoktug0758/FileTrans
 
 - **Proje Sahibi**: [gencergoktug0758](https://github.com/gencergoktug0758)
 - **E-posta**: gencergoktug5807@gmail.com
-- **Proje Linki**: [https://github.com/gencergoktug0758/FileTransferTug](https://github.com/gencergoktug0758/FileTransferTug-)
+- **Proje Linki**: [https://github.com/gencergoktug0758/FileTransferTug](https://github.com/gencergoktug0758/FileTransferTug)
 
 ## 🙏 Teşekkürler
 
