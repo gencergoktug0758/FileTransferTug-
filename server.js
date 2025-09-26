@@ -6,18 +6,29 @@ const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 const QRCode = require('qrcode');
 const compression = require('compression');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Railway için gerekli ayarlar
+if (process.env.NODE_ENV === 'production') {
+  // Production ortamında güvenlik ayarları
+  app.set('trust proxy', 1);
+}
+
 // Middleware
 app.use(compression()); // Gzip compression
 // HTTPS zorunluluğu (güvenlik için)
 app.use((req, res, next) => {
-  // Development ortamında da HTTPS kontrolü yap
-  if (!req.secure && req.get('x-forwarded-proto') !== 'https' && req.get('host') !== 'localhost:3000') {
+  // Development ortamında ve Railway'de HTTPS kontrolü yapma
+  if (process.env.NODE_ENV !== 'production' || req.get('host') === 'localhost:3000') {
+    return next();
+  }
+  
+  // Production ortamında HTTPS kontrolü
+  if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
     return res.redirect(`https://${req.get('host')}${req.url}`);
   }
   next();
