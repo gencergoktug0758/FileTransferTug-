@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileTransferTug - Şifreli Dosya İndir</title>
+    <style>
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-primary: #00d4ff;
+            --accent-secondary: #0099cc;
+            --border-color: #2a2a3e;
+            --success-color: #00ff88;
+            --error-color: #ff4757;
+            --warning-color: #ffa502;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 153, 204, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(0, 255, 136, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(0, 212, 255, 0.1);
+            padding: 50px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+        }
+
+        h1 {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            font-size: 2.5em;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-size: 1.1em;
+            font-weight: 400;
+        }
+
+        .security-warning {
+            background: rgba(255, 165, 2, 0.1);
+            border: 1px solid var(--warning-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            color: var(--warning-color);
+        }
+
+        .security-warning h3 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .password-form {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px 0;
+        }
+
+        .password-field {
+            margin-bottom: 25px;
+        }
+
+        .password-field label {
+            display: block;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .password-field input[type="password"] {
+            width: 100%;
+            padding: 18px 25px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            color: var(--text-primary);
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .password-field input[type="password"]:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .verify-btn {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+            width: 100%;
+        }
+
+        .verify-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .verify-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.4);
+        }
+
+        .verify-btn:hover::before {
+            left: 100%;
+        }
+
+        .verify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .file-info {
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: left;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .file-info h3 {
+            color: var(--success-color);
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            text-align: center;
+        }
+
+        .file-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .file-detail {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .file-detail-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .file-detail-value {
+            color: var(--text-primary);
+            font-weight: 600;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            line-height: 1.4;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, var(--success-color), #00cc6a);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+            width: 100%;
+        }
+
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 255, 136, 0.4);
+        }
+
+        .download-btn:hover::before {
+            left: 100%;
+        }
+
+        .error-message {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            margin: 30px 0;
+        }
+
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--accent-primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-btn {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 2px solid var(--border-color);
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 30px;
+        }
+
+        .back-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .attempts-info {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+
+        .locked-message {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        /* Responsive Tasarım - Mobil Optimizasyonu */
+        
+        /* Tablet Portrait */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                padding: 30px 20px;
+                margin: 0;
+                max-width: 100%;
+                border-radius: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+                margin-bottom: 10px;
+            }
+            
+            .subtitle {
+                font-size: 1em;
+                margin-bottom: 30px;
+            }
+            
+            .security-warning {
+                padding: 15px;
+                margin: 20px 0;
+            }
+            
+            .security-warning h3 {
+                font-size: 1.1em;
+            }
+            
+            .password-form {
+                padding: 25px;
+                margin: 20px 0;
+            }
+            
+            .password-field input[type="password"] {
+                padding: 15px 20px;
+                font-size: 1em;
+            }
+            
+            .verify-btn {
+                padding: 15px 30px;
+                font-size: 1em;
+            }
+            
+            .file-info {
+                padding: 20px;
+                margin: 20px 0;
+            }
+            
+            .file-info h3 {
+                font-size: 1.2em;
+                margin-bottom: 15px;
+            }
+            
+            .file-details {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .file-detail {
+                padding: 12px;
+            }
+            
+            .file-detail-value {
+                font-size: 0.9em;
+                word-break: break-all;
+                overflow-wrap: break-word;
+            }
+            
+            .download-btn {
+                padding: 15px 30px;
+                font-size: 1.1em;
+            }
+            
+            .back-btn {
+                padding: 12px 25px;
+                font-size: 0.9em;
+            }
+        }
+        
+        /* Mobil Cihazlar */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px 15px;
+                border-radius: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .subtitle {
+                font-size: 0.9em;
+                margin-bottom: 25px;
+            }
+            
+            .security-warning {
+                padding: 12px;
+                margin: 15px 0;
+            }
+            
+            .security-warning h3 {
+                font-size: 1em;
+            }
+            
+            .password-form {
+                padding: 20px;
+                margin: 15px 0;
+            }
+            
+            .password-field input[type="password"] {
+                padding: 12px 15px;
+                font-size: 0.9em;
+            }
+            
+            .verify-btn {
+                padding: 12px 25px;
+                font-size: 0.9em;
+            }
+            
+            .file-info {
+                padding: 15px;
+                margin: 15px 0;
+            }
+            
+            .file-info h3 {
+                font-size: 1.1em;
+            }
+            
+            .file-detail {
+                padding: 10px;
+            }
+            
+            .file-detail-label {
+                font-size: 0.8em;
+            }
+            
+            .file-detail-value {
+                font-size: 0.85em;
+            }
+            
+            .download-btn {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+            
+            .back-btn {
+                padding: 10px 20px;
+                font-size: 0.8em;
+            }
+            
+            .error-message, .locked-message {
+                padding: 15px;
+                margin: 15px 0;
+            }
+            
+            .loading {
+                margin: 20px 0;
+            }
+            
+            .spinner {
+                width: 40px;
+                height: 40px;
+            }
+        }
+        
+        /* Çok Küçük Ekranlar */
+        @media (max-width: 320px) {
+            .container {
+                padding: 15px 10px;
+            }
+            
+            h1 {
+                font-size: 1.6em;
+            }
+            
+            .password-form {
+                padding: 15px;
+            }
+            
+            .file-info {
+                padding: 12px;
+            }
+            
+            .file-detail {
+                padding: 8px;
+            }
+        }
+        
+        /* Touch-Friendly Butonlar */
+        @media (hover: none) and (pointer: coarse) {
+            .verify-btn, .download-btn, .back-btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .password-field input[type="password"] {
+                min-height: 44px;
+            }
+        }
+        
+        /* Landscape Orientation */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 10px;
+            }
+            
+            .subtitle {
+                margin-bottom: 20px;
+            }
+            
+            .security-warning {
+                margin: 15px 0;
+            }
+            
+            .password-form {
+                margin: 15px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 FileTransferTug</h1>
+        <p class="subtitle">Şifreli Dosya Erişimi</p>
+
+        <div class="security-warning">
+            <h3>⚠️ Güvenlik Uyarısı</h3>
+            <p>Bu dosya şifre ile korunmaktadır. İndirmek için lütfen şifreyi girin.</p>
+        </div>
+
+        <div class="password-form" id="passwordForm">
+            <div class="password-field">
+                <label for="passwordInput">🔑 Şifre:</label>
+                <input type="password" id="passwordInput" placeholder="Şifreyi girin" maxlength="12">
+            </div>
+            
+            <button class="verify-btn" id="verifyBtn" onclick="verifyPassword()">
+                🔐 Doğrula ve Devam Et
+            </button>
+            
+            <div class="attempts-info" id="attemptsInfo"></div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Şifre doğrulanıyor...</p>
+        </div>
+
+        <div class="error-message" id="errorMessage">
+            <h3>❌ Hata</h3>
+            <p id="errorText"></p>
+        </div>
+
+        <div class="locked-message" id="lockedMessage">
+            <h3>🔒 Hesap Kilitlendi</h3>
+            <p id="lockedText"></p>
+        </div>
+
+        <div class="file-info" id="fileInfo">
+            <h3>✅ Şifre Doğru!</h3>
+            <div class="file-details">
+                <div class="file-detail">
+                    <div class="file-detail-label">Dosya Adı</div>
+                    <div class="file-detail-value" id="fileName"></div>
+                </div>
+                <div class="file-detail">
+                    <div class="file-detail-label">Dosya Boyutu</div>
+                    <div class="file-detail-value" id="fileSize"></div>
+                </div>
+                <div class="file-detail">
+                    <div class="file-detail-label">Yüklenme Tarihi</div>
+                    <div class="file-detail-value" id="uploadDate"></div>
+                </div>
+                <div class="file-detail">
+                    <div class="file-detail-label">İndirme Sayısı</div>
+                    <div class="file-detail-value" id="downloadCount"></div>
+                </div>
+            </div>
+
+            <button class="download-btn" onclick="downloadFile()">
+                📥 Dosyayı İndir
+            </button>
+        </div>
+
+        <button class="back-btn" onclick="goHome()">
+            🏠 Ana Sayfaya Dön
+        </button>
+    </div>
+
+    <script>
+        const fileId = window.location.pathname.split('/').pop();
+        const passwordInput = document.getElementById('passwordInput');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+        const lockedMessage = document.getElementById('lockedMessage');
+        const fileInfo = document.getElementById('fileInfo');
+        const passwordForm = document.getElementById('passwordForm');
+        const attemptsInfo = document.getElementById('attemptsInfo');
+        
+        let sessionToken = null;
+
+        // Enter tuşu ile şifre doğrulama
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyPassword();
+            }
+        });
+
+        function verifyPassword() {
+            const password = passwordInput.value.trim();
+            
+            if (!password) {
+                showError('Lütfen şifre girin!');
+                return;
+            }
+
+            if (password.length < 4 || password.length > 12) {
+                showError('Şifre en az 4, en fazla 12 karakter olmalıdır!');
+                return;
+            }
+
+            if (password.includes(' ')) {
+                showError('Şifre boşluk karakteri içeremez!');
+                return;
+            }
+
+            // Loading göster
+            showLoading();
+            hideError();
+            hideLocked();
+
+            fetch(`/verify-password/${fileId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                
+                if (data.success) {
+                    sessionToken = data.sessionToken;
+                    loadFileInfo();
+                } else if (data.locked) {
+                    showLocked(data.error, data.remainingTime);
+                } else {
+                    showError(data.error);
+                    if (data.remainingAttempts !== undefined) {
+                        updateAttemptsInfo(data.remainingAttempts);
+                    }
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                showError('Bağlantı hatası! Lütfen tekrar deneyin.');
+                console.error('Error:', error);
+            });
+        }
+
+        function loadFileInfo() {
+            showLoading();
+            
+            fetch(`/file/${fileId}?token=${sessionToken}`)
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    displayFileInfo(data);
+                })
+                .catch(error => {
+                    hideLoading();
+                    showError('Dosya bilgileri yüklenemedi!');
+                    console.error('Error:', error);
+                });
+        }
+
+        function displayFileInfo(data) {
+            passwordForm.style.display = 'none';
+            fileInfo.style.display = 'block';
+
+            // Dosya ismini kısalt (çok uzunsa)
+            const fileName = data.originalName;
+            const maxLength = 50; // Maksimum karakter sayısı
+            const displayName = fileName.length > maxLength ? 
+                fileName.substring(0, maxLength) + '...' : fileName;
+            
+            document.getElementById('fileName').textContent = displayName;
+            document.getElementById('fileName').title = fileName; // Tam ismi tooltip olarak göster
+            document.getElementById('fileSize').textContent = formatFileSize(data.size);
+            document.getElementById('uploadDate').textContent = formatDate(data.uploadDate);
+            document.getElementById('downloadCount').textContent = data.downloadCount + ' kez';
+        }
+
+        function downloadFile() {
+            if (!sessionToken) {
+                showError('Oturum geçersiz! Lütfen tekrar giriş yapın.');
+                return;
+            }
+
+            // Mobil cihaz tespiti
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Mobil cihazlarda yeni sekmede aç
+                const downloadUrl = `/download-file/${fileId}?token=${sessionToken}`;
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = document.getElementById('fileName').textContent;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                // Masaüstünde direkt indir
+                window.location.href = `/download-file/${fileId}?token=${sessionToken}`;
+            }
+        }
+
+        function showLoading() {
+            loading.style.display = 'block';
+            verifyBtn.disabled = true;
+        }
+
+        function hideLoading() {
+            loading.style.display = 'none';
+            verifyBtn.disabled = false;
+        }
+
+        function showError(message) {
+            document.getElementById('errorText').textContent = message;
+            errorMessage.style.display = 'block';
+            hideLocked();
+        }
+
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        function showLocked(message, remainingTime) {
+            document.getElementById('lockedText').textContent = message;
+            lockedMessage.style.display = 'block';
+            hideError();
+            
+            // Geri sayım
+            let timeLeft = remainingTime;
+            const countdownInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    hideLocked();
+                    return;
+                }
+                document.getElementById('lockedText').textContent = 
+                    `Çok fazla başarısız deneme! ${timeLeft} dakika sonra tekrar deneyin.`;
+            }, 60000);
+        }
+
+        function hideLocked() {
+            lockedMessage.style.display = 'none';
+        }
+
+        function updateAttemptsInfo(remainingAttempts) {
+            if (remainingAttempts > 0) {
+                attemptsInfo.textContent = `Kalan deneme hakkı: ${remainingAttempts}`;
+                attemptsInfo.style.color = remainingAttempts <= 2 ? 'var(--error-color)' : 'var(--warning-color)';
+            } else {
+                attemptsInfo.textContent = '';
+            }
+        }
+
+        function goHome() {
+            window.location.href = '/';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('tr-TR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Sayfa yüklendiğinde şifre alanına odaklan
+        document.addEventListener('DOMContentLoaded', function() {
+            passwordInput.focus();
+        });
+    </script>
+</body>
+</html>

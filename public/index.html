@@ -1,0 +1,3183 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileTransferTug - Dosya Paylaşım</title>
+    <style>
+        :root {
+            /* Sade Neon Renk Paleti */
+            --primary-neon: #00ff88;
+            --secondary-neon: #ff0080;
+            --accent-neon: #00d4ff;
+            --accent-primary: #00d4ff;
+            --accent-secondary: #0099cc;
+            --warning-neon: #ffaa00;
+            --danger-neon: #ff0040;
+            --success-neon: #00ff88;
+            
+            /* Sade Gradient Arka Planlar */
+            --bg-primary: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            --bg-secondary: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            --bg-tertiary: linear-gradient(135deg, #16213e 0%, #0f3460 50%, #533483 100%);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --bg-glass-hover: rgba(255, 255, 255, 0.05);
+            
+            /* Metin Renkleri */
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --text-neon: #00ff88;
+            
+            /* Sade Border ve Shadow */
+            --border-neon: 1px solid rgba(0, 255, 136, 0.2);
+            --border-glass: 1px solid rgba(255, 255, 255, 0.08);
+            --shadow-neon: 0 0 15px rgba(0, 255, 136, 0.2);
+            --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.2);
+            --shadow-glow: 0 0 20px rgba(0, 255, 136, 0.3);
+            
+            /* Modern Spacing */
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 2rem;
+            --space-xl: 3rem;
+            
+            /* Modern Border Radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            /* Modern Transitions */
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-lg);
+        }
+
+        /* Modern Arka Plan Animasyonu */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 0, 128, 0.1) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(-10px) translateY(-5px); }
+            50% { transform: translateX(5px) translateY(-10px); }
+            75% { transform: translateX(-5px) translateY(5px); }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 153, 204, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(0, 255, 136, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: var(--border-glass);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-glass);
+            padding: var(--space-xl);
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-neon), transparent);
+            opacity: 0.4;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-neon), var(--accent-neon), var(--secondary-neon), transparent);
+            opacity: 0.8;
+            animation: neonGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes neonGlow {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        h1 {
+            background: linear-gradient(135deg, var(--primary-neon), var(--accent-neon));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-md);
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 50px;
+            font-size: 1.2em;
+            font-weight: 400;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin: var(--space-lg) 0;
+            transition: var(--transition-normal);
+            cursor: pointer;
+            background: var(--bg-glass);
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-glass);
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 255, 136, 0.1), 
+                transparent);
+            transition: left 0.6s ease;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-neon);
+            background: var(--bg-glass-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .upload-area:hover::before {
+            left: 100%;
+        }
+
+        .upload-area.dragover {
+            border-color: var(--primary-neon);
+            background: var(--bg-glass-hover);
+            transform: scale(1.01);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: var(--space-md);
+            filter: drop-shadow(0 0 15px rgba(0, 255, 136, 0.3));
+            animation: iconFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .upload-text {
+            font-size: 1.4em;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .upload-subtext {
+            color: var(--text-secondary);
+            font-size: 1em;
+            margin: 5px 0;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-neon), var(--accent-neon));
+            color: #000;
+            border: none;
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-lg);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            margin: var(--space-md) var(--space-sm);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: var(--shadow-neon);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: var(--transition-normal);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+            filter: brightness(1.1);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .result {
+            margin-top: 40px;
+            padding: 30px;
+            border-radius: 20px;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .result.success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .result.error {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+        }
+
+        .download-link {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--accent-primary);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95em;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        .copy-btn {
+            background: var(--success-neon);
+            color: white;
+            border: none;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            margin-left: var(--space-sm);
+            font-weight: 600;
+            transition: var(--transition-normal);
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .copy-btn:hover {
+            background: #00cc6a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .file-info {
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        .file-info h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .file-info p {
+            margin: 8px 0;
+            color: var(--text-secondary);
+            font-size: 1em;
+        }
+
+        .loading {
+            display: none;
+            margin: 30px 0;
+        }
+
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--accent-primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-container {
+            display: none;
+            margin: 30px 0;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .progress-title {
+            color: var(--text-primary);
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .progress-percentage {
+            color: var(--accent-primary);
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .progress-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .file-name-progress {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .upload-speed {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .cancel-btn {
+            background: var(--error-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .cancel-btn:hover {
+            background: #e63946;
+            transform: translateY(-1px);
+        }
+
+        .footer {
+            margin-top: 50px;
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            opacity: 0.8;
+        }
+
+        .header-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .sound-toggle, .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sound-toggle:hover, .theme-toggle:hover {
+            background: var(--bg-tertiary);
+            transform: scale(1.1);
+        }
+
+        .sound-toggle.muted {
+            opacity: 0.5;
+        }
+
+        /* Şifreli Paylaşım Stilleri */
+        .password-section {
+            margin: 30px 0;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .password-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .password-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .password-header h3 {
+            color: var(--text-primary);
+            font-size: 1.3em;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 24px;
+            height: 24px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            margin-right: 12px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-container input[type="checkbox"]:checked + .checkmark {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .checkbox-container input[type="checkbox"]:checked + .checkmark::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .checkbox-label {
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 1em;
+        }
+
+        .password-input-group {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .password-field {
+            margin-top: 20px;
+        }
+
+        .password-field label {
+            display: block;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .password-field input[type="password"] {
+            width: 100%;
+            padding: var(--space-md);
+            background: var(--bg-glass);
+            border: var(--border-glass);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: var(--transition-normal);
+            backdrop-filter: blur(10px);
+            box-sizing: border-box;
+        }
+
+        .password-field input[type="password"]:focus {
+            outline: none;
+            border: var(--border-neon);
+            box-shadow: var(--shadow-neon);
+            background: var(--bg-glass-hover);
+        }
+
+        .password-field input[type="password"]:invalid {
+            border-color: var(--danger-neon);
+            box-shadow: 0 0 20px rgba(255, 0, 64, 0.3);
+        }
+
+        .password-field input[type="password"]:valid {
+            border-color: var(--success-neon);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .password-requirements {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .password-requirements small {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            margin: 2px 0;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Light Theme */
+        .light-theme {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #1d4ed8;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        .light-theme::before {
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(29, 78, 216, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+        }
+
+        /* Kullanıcı Sistemi Stilleri */
+        .user-section {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .user-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .tab-content {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .form-group {
+            margin: 20px 0;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .guest-text {
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+
+        .guest-text a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .guest-text a:hover {
+            text-decoration: underline;
+        }
+
+        .user-panel {
+            background: var(--bg-glass);
+            border: var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin: var(--space-lg) 0;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow-glass);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-neon), transparent);
+            opacity: 0.3;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .welcome-text {
+            color: var(--text-primary);
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .btn-small {
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .btn-small:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-2px);
+        }
+
+        .delete-btn {
+            background: #e74c3c !important;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b !important;
+        }
+
+        /* Onay Dialog Stilleri */
+        .confirm-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .confirm-dialog {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+            border: 2px solid var(--accent-primary);
+        }
+
+        .confirm-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .confirm-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+            animation: pulse 1s infinite;
+        }
+
+        .confirm-header h3 {
+            color: var(--text-primary);
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .confirm-body {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .confirm-body p {
+            margin: 15px 0;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .warning-text {
+            color: #e74c3c !important;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .info-text {
+            color: var(--accent-primary) !important;
+            font-size: 0.95em;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn-cancel, .btn-delete {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Responsive Tasarım - Mobil Optimizasyonu */
+        
+        /* Büyük Ekranlar (Desktop) */
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1000px;
+                padding: var(--space-xl);
+            }
+            
+            h1 {
+                font-size: 3.5rem;
+            }
+            
+            .upload-area {
+                padding: var(--space-xl);
+            }
+        }
+        
+        /* Orta Ekranlar (Tablet Landscape) */
+        @media (max-width: 1199px) and (min-width: 769px) {
+            .container {
+                max-width: 800px;
+                padding: var(--space-lg);
+            }
+            
+            h1 {
+                font-size: 2.8rem;
+            }
+            
+            .upload-area {
+                padding: var(--space-lg);
+            }
+            
+            .btn {
+                padding: var(--space-sm) var(--space-md);
+                font-size: 1rem;
+            }
+        }
+        
+        /* Tablet Portrait */
+        @media (max-width: 768px) {
+            body {
+                padding: var(--space-sm);
+            }
+            
+            .container {
+                padding: var(--space-md);
+                margin: var(--space-sm) 0;
+                border-radius: var(--radius-lg);
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+                margin-bottom: var(--space-sm);
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+                margin-bottom: var(--space-lg);
+            }
+            
+            .upload-area {
+                padding: var(--space-lg);
+                margin: var(--space-md) 0;
+            }
+            
+            .upload-icon {
+                font-size: 3rem;
+            }
+            
+            .upload-text {
+                font-size: 1.2rem;
+            }
+            
+            .upload-subtext {
+                font-size: 0.9rem;
+            }
+            
+            .btn {
+                padding: var(--space-sm) var(--space-md);
+                margin: var(--space-sm);
+                font-size: 1rem;
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .user-panel {
+                padding: var(--space-md);
+            }
+            
+            .user-info {
+                flex-direction: column;
+                gap: var(--space-sm);
+                text-align: center;
+            }
+            
+            .user-actions {
+                flex-direction: column;
+                gap: var(--space-sm);
+            }
+            
+            .file-actions {
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: center;
+                margin-top: 15px;
+            }
+            
+            .btn-small, .visibility-toggle, .delete-btn {
+                padding: 10px 16px;
+                font-size: 0.9em;
+                min-width: 100px;
+                flex: 1;
+                max-width: 150px;
+                border-radius: 8px;
+                text-align: center;
+                white-space: nowrap;
+            }
+            
+            .visibility-toggle {
+                min-width: 120px;
+            }
+            
+            .delete-btn {
+                background: #ff4757 !important;
+                color: white !important;
+            }
+            
+            .delete-btn:hover {
+                background: #ff3742 !important;
+            }
+            
+            .search-form {
+                flex-direction: column;
+                gap: var(--space-sm);
+            }
+            
+            .search-form input {
+                width: 100%;
+                margin: 0;
+            }
+            
+            .file-item {
+                margin: var(--space-sm) 0;
+            }
+            
+            .file-header {
+                flex-direction: column;
+                gap: var(--space-xs);
+            }
+            
+            .file-meta {
+                flex-wrap: wrap;
+                gap: var(--space-xs);
+            }
+            
+            .password-section {
+                padding: var(--space-md);
+            }
+            
+            .password-field {
+                margin: var(--space-sm) 0;
+            }
+            
+            .checkbox-container {
+                margin: var(--space-sm) 0;
+            }
+            
+            .file-selected-notification {
+                padding: var(--space-md);
+                margin: var(--space-sm) 0;
+            }
+            
+            .notification-content {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--space-sm);
+            }
+            
+            .notification-icon {
+                font-size: 2rem;
+            }
+            
+            .anonymous-panel {
+                padding: var(--space-md);
+            }
+            
+            .anonymous-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .anonymous-text {
+                font-size: 1.1em;
+                margin-bottom: 10px;
+            }
+            
+            .anonymous-disadvantages {
+                padding: 15px;
+            }
+            
+            .anonymous-disadvantages h4 {
+                font-size: 1em;
+            }
+            
+            .anonymous-disadvantages li {
+                font-size: 0.9em;
+            }
+        }
+        
+        /* Mobil Cihazlar */
+        @media (max-width: 480px) {
+            body {
+                padding: var(--space-xs);
+            }
+            
+            .container {
+                padding: var(--space-sm);
+                margin: var(--space-xs) 0;
+                border-radius: var(--radius-md);
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: var(--space-xs);
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+                margin-bottom: var(--space-md);
+            }
+            
+            .upload-area {
+                padding: var(--space-md);
+                margin: var(--space-sm) 0;
+            }
+            
+            .upload-icon {
+                font-size: 2.5rem;
+            }
+            
+            .upload-text {
+                font-size: 1.1rem;
+            }
+            
+            .upload-subtext {
+                font-size: 0.8rem;
+            }
+            
+            .btn {
+                padding: var(--space-sm);
+                margin: var(--space-xs);
+                font-size: 0.9rem;
+                width: 100%;
+            }
+            
+            .user-panel {
+                padding: var(--space-sm);
+            }
+            
+            .file-actions {
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            
+            .btn-small, .visibility-toggle, .delete-btn {
+                padding: 12px 20px;
+                font-size: 0.9em;
+                width: 100%;
+                min-width: auto;
+                max-width: none;
+                border-radius: 10px;
+                text-align: center;
+            }
+            
+            .visibility-toggle {
+                min-width: auto;
+            }
+            
+            .delete-btn {
+                background: #ff4757 !important;
+                color: white !important;
+            }
+            
+            .delete-btn:hover {
+                background: #ff3742 !important;
+            }
+            
+            .file-meta span {
+                font-size: 0.8rem;
+            }
+            
+            .password-section {
+                padding: var(--space-sm);
+            }
+            
+            .file-selected-notification {
+                padding: var(--space-sm);
+            }
+            
+            .notification-title {
+                font-size: 1rem;
+            }
+            
+            .notification-file {
+                font-size: 0.9rem;
+            }
+            
+            .notification-size {
+                font-size: 0.8rem;
+            }
+            
+            .anonymous-panel {
+                padding: var(--space-sm);
+            }
+            
+            .anonymous-text {
+                font-size: 0.9rem;
+            }
+            
+            .anonymous-disadvantages {
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Çok Küçük Ekranlar */
+        @media (max-width: 320px) {
+            .container {
+                padding: var(--space-xs);
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .upload-area {
+                padding: var(--space-sm);
+            }
+            
+            .upload-icon {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                padding: var(--space-xs) var(--space-sm);
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Touch-Friendly Butonlar */
+        @media (hover: none) and (pointer: coarse) {
+            .btn, .btn-small, .visibility-toggle, .delete-btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .notification-close {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .checkbox-container {
+                min-height: 44px;
+            }
+            
+            .checkmark {
+                width: 28px;
+                height: 28px;
+            }
+        }
+        
+        /* Landscape Orientation */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .container {
+                padding: var(--space-sm);
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: var(--space-xs);
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+                margin-bottom: var(--space-sm);
+            }
+            
+            .upload-area {
+                padding: var(--space-md);
+            }
+            
+            .upload-icon {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* İlk Giriş Ekranı Stilleri */
+        .initial-login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .initial-login-container {
+            background: var(--bg-primary);
+            border-radius: 25px;
+            padding: 50px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            border: 2px solid var(--accent-primary);
+        }
+
+        .initial-login-header h1 {
+            font-size: 3em;
+            margin: 0 0 15px 0;
+            color: var(--accent-primary);
+            font-weight: 800;
+        }
+
+        .initial-login-header p {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            margin: 0 0 40px 0;
+        }
+
+        .initial-login-options {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .login-option {
+            padding: 30px;
+            border-radius: 20px;
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .login-option:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-5px);
+        }
+
+        .login-option h3 {
+            font-size: 1.5em;
+            margin: 0 0 15px 0;
+            color: var(--text-primary);
+        }
+
+        .login-option p {
+            color: var(--text-secondary);
+            margin: 0 0 25px 0;
+            line-height: 1.6;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 2px solid var(--accent-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .divider {
+            position: relative;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .divider span {
+            background: var(--bg-primary);
+            padding: 0 20px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-primary);
+            z-index: -1;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Anonim Kullanıcı Paneli Stilleri */
+        .anonymous-panel {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid var(--warning-color);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
+        }
+
+        .anonymous-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .anonymous-text {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--warning-color);
+        }
+
+        .upgrade-btn {
+            background: var(--accent-primary) !important;
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .upgrade-btn:hover {
+            background: var(--accent-secondary) !important;
+            transform: translateY(-2px);
+        }
+
+        .anonymous-disadvantages {
+            background: rgba(255, 107, 53, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 107, 53, 0.3);
+        }
+
+        .anonymous-disadvantages h4 {
+            color: var(--warning-color);
+            margin: 0 0 15px 0;
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+
+        .anonymous-disadvantages ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .anonymous-disadvantages li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            border-bottom: 1px solid rgba(255, 107, 53, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .anonymous-disadvantages li:last-child {
+            border-bottom: none;
+        }
+
+        .anonymous-disadvantages li:hover {
+            color: var(--text-primary);
+            padding-left: 10px;
+        }
+
+        /* Dosya Seçildi Bildirimi - Sade */
+        .file-selected-notification {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin: var(--space-lg) 0;
+            box-shadow: var(--shadow-glass);
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-selected-notification::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--success-neon), transparent);
+            opacity: 0.4;
+        }
+
+        .file-selected-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+            animation: bounce 0.6s ease;
+        }
+
+        .notification-text {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .notification-file {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+
+        .notification-size {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .notification-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .search-section, .my-files-section {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-form input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 18px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .search-form input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h3 {
+            color: var(--text-primary);
+            font-size: 1.3em;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .search-results, .my-files-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+        }
+
+        .file-item:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.1);
+        }
+
+        .file-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .file-name {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1em;
+            word-break: break-word;
+        }
+
+        .file-meta {
+            display: flex;
+            gap: 15px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            flex-wrap: wrap;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .btn-small, .visibility-toggle, .delete-btn {
+            padding: 10px 18px;
+            font-size: 0.9em;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .btn-small {
+            background: var(--primary-neon);
+            color: #000;
+        }
+
+        .btn-small:hover {
+            background: #00cc6a;
+            transform: translateY(-1px);
+        }
+
+        .visibility-toggle {
+            background: var(--accent-neon);
+            color: #000;
+            min-width: 120px;
+        }
+
+        .visibility-toggle:hover {
+            background: #00b8e6;
+            transform: translateY(-1px);
+        }
+
+        .visibility-toggle.public {
+            background: var(--success-neon);
+        }
+
+        .visibility-toggle.private {
+            background: var(--warning-neon);
+        }
+
+        .delete-btn {
+            background: var(--danger-neon);
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #e6003a;
+            transform: translateY(-1px);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 40px 20px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            
+            h1 {
+                font-size: 2.2em;
+            }
+            
+            .upload-area {
+                padding: 50px 20px;
+            }
+            
+            .btn {
+                padding: 15px 25px;
+                margin: 15px 5px;
+            }
+
+            .search-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-form input {
+                min-width: auto;
+            }
+
+            .user-info {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .file-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .file-meta {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- İlk Giriş Ekranı -->
+    <div id="initialLoginScreen" class="initial-login-screen">
+        <div class="initial-login-container">
+            <div class="initial-login-header">
+                <h1>📁 DosyaPaylaşım</h1>
+                <p>Dosyalarınızı güvenle paylaşın</p>
+            </div>
+            
+            <div class="initial-login-options">
+                <div class="login-option">
+                    <h3>🔐 Hesabınızla Giriş Yapın</h3>
+                    <p>Dosyalarınızı yönetin ve arkadaşlarınızla paylaşın</p>
+                    <button class="btn-primary" onclick="showLoginForm()">
+                        Giriş Yap / Kayıt Ol
+                    </button>
+                </div>
+                
+                <div class="divider">
+                    <span>veya</span>
+                </div>
+                
+                <div class="login-option">
+                    <h3>👤 Anonim Olarak Devam Et</h3>
+                    <p>Hesap oluşturmadan dosya paylaşın</p>
+                    <button class="btn-secondary" onclick="continueAsAnonymous()">
+                        Anonim Devam Et
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-controls">
+        <div class="sound-toggle" onclick="toggleSound()">
+            <span id="soundIcon">🔊</span>
+        </div>
+        <div class="theme-toggle" onclick="toggleTheme()">
+            <span id="themeIcon">🌙</span>
+        </div>
+        <!-- Anonim kullanıcılar için giriş butonu -->
+        <button id="topLoginBtn" class="btn-small" onclick="showLoginForm()" style="display: none;">
+            🔐 Giriş Yap
+        </button>
+    </div>
+
+    <div class="container" id="mainContainer" style="display: none;">
+        <h1>🚀 FileTransferTug</h1>
+        <p class="subtitle">Tüm dosyalarınızı güvenle paylaşın</p>
+
+        <!-- Kullanıcı Girişi/Kayıt Bölümü (Gizli) -->
+        <div class="user-section" id="userSection" style="display: none;">
+            <p>Giriş yapmak için <a href="/login.html" style="color: var(--accent-primary);">buraya tıklayın</a></p>
+        </div>
+
+        <!-- Kullanıcı Paneli -->
+        <div class="user-panel" id="userPanel" style="display: none;">
+            <div class="user-info">
+                <span class="welcome-text">Hoş geldin, <strong id="welcomeUsername"></strong>!</span>
+                <button class="btn-small" onclick="logout()">Çıkış</button>
+            </div>
+            <div class="user-actions">
+                <button class="btn-small" onclick="showMyFiles()">📁 Dosyalarım</button>
+                <button class="btn-small" onclick="showSearchForm()">🔍 Dosya Ara</button>
+            </div>
+        </div>
+
+        <!-- Anonim Kullanıcı Paneli -->
+        <div class="anonymous-panel" id="anonymousPanel" style="display: none;">
+            <div class="anonymous-info">
+                <div class="anonymous-header">
+                    <span class="anonymous-text">👤 Anonim olarak giriş yaptınız</span>
+                    <button class="btn-small upgrade-btn" onclick="showLoginForm()">🔐 Hesap Oluştur</button>
+                </div>
+                <div class="anonymous-disadvantages">
+                    <h4>⚠️ Anonim Kullanımın Dezavantajları:</h4>
+                    <ul>
+                        <li>📁 Dosyalarınızı yönetemezsiniz</li>
+                        <li>🔍 Arkadaşlarınız dosyalarınızı bulamaz</li>
+                        <li>🔒 Dosyalarınızı özel yapamazsınız</li>
+                        <li>📊 İndirme istatistiklerini göremezsiniz</li>
+                        <li>🗑️ Dosyalarınızı silemezsiniz</li>
+                        <li>⏰ Dosyalarınız 1 hafta sonra otomatik silinir</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dosya Arama Formu -->
+        <div class="search-section" id="searchSection" style="display: none;">
+            <div class="search-form">
+                <input type="text" id="searchUsername" placeholder="Kullanıcı adı ara..." maxlength="20">
+                <button class="btn" onclick="searchUserFiles()">🔍 Ara</button>
+                <button class="btn-small" onclick="hideSearchForm()">❌ Kapat</button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+
+        <!-- Dosyalarım Paneli -->
+        <div class="my-files-section" id="myFilesSection" style="display: none;">
+            <div class="section-header">
+                <h3>📁 Dosyalarım</h3>
+                <button class="btn-small" onclick="hideMyFiles()">❌ Kapat</button>
+            </div>
+            <div class="my-files-list" id="myFilesList"></div>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📤</div>
+            <div class="upload-text">Dosyanızı buraya sürükleyin</div>
+            <div class="upload-subtext">veya tıklayarak seçin</div>
+            <div class="upload-subtext">Maksimum dosya boyutu: 200MB</div>
+            <div class="upload-subtext">Desteklenen formatlar: Tüm dosya türleri</div>
+        </div>
+
+        <input type="file" id="fileInput" class="file-input">
+        <button class="btn" onclick="document.getElementById('fileInput').click()">📁 Dosya Seç</button>
+        
+        <!-- Dosyayı Paylaş Butonu -->
+        <button class="btn" id="shareBtn" onclick="shareFile()" style="display: none;">🚀 Dosyayı Paylaş</button>
+
+        <!-- Şifreli Paylaşım Seçenekleri -->
+        <div class="password-section" id="passwordSection" style="display: none;">
+            <div class="password-card">
+                <div class="password-header">
+                    <h3>🔒 Şifreli Paylaşım</h3>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="enablePassword" onchange="togglePasswordInput()">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-label">Dosyayı şifre ile koru</span>
+                    </label>
+                </div>
+                
+                <div class="password-input-group" id="passwordInputGroup" style="display: none;">
+                    <div class="password-field">
+                        <label for="filePassword">Şifre Belirle:</label>
+                        <input type="password" id="filePassword" placeholder="En az 4, en fazla 12 karakter" maxlength="12">
+                        <div class="password-requirements">
+                            <small>• En az 4, en fazla 12 karakter</small>
+                            <small>• Boşluk karakteri içeremez</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Dosya yükleniyor...</p>
+        </div>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-header">
+                <div class="progress-title">📤 Dosya Yükleniyor</div>
+                <div class="progress-percentage" id="progressPercentage">0%</div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="progress-details">
+                <div class="file-name-progress" id="progressFileName"></div>
+                <div class="upload-speed" id="uploadSpeed">0 KB/s</div>
+            </div>
+            
+            <button class="cancel-btn" id="cancelBtn" onclick="cancelUpload()">❌ İptal Et</button>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <div class="footer">
+            <p>🔒 Güvenli dosya paylaşımı • 🌐 Anonim indirme • ⚡ Hızlı transfer • 📁 Tüm dosya türleri</p>
+        </div>
+    </div>
+
+    <script>
+        // Kullanıcı sistemi değişkenleri
+        let currentUser = null;
+        // İlk giriş ekranını göster
+        function showLoginForm() {
+            // Giriş sayfasına yönlendir
+            window.location.href = '/login.html';
+        }
+
+        // Anonim olarak devam et
+        function continueAsAnonymous() {
+            document.getElementById('initialLoginScreen').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
+            document.getElementById('topLoginBtn').style.display = 'inline-block';
+            // Kullanıcı bölümünü gizle
+            document.getElementById('userSection').style.display = 'none';
+            
+            // Anonim paneli göster
+            document.getElementById('anonymousPanel').style.display = 'block';
+            
+            // Anonim kullanıcı olduğunu localStorage'a kaydet
+            localStorage.setItem('isAnonymous', 'true');
+        }
+
+        let sessionToken = null;
+
+        // Sayfa yüklendiğinde oturum kontrolü
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedSession = localStorage.getItem('sessionToken');
+            const savedUsername = localStorage.getItem('username');
+            const isAnonymous = localStorage.getItem('isAnonymous');
+            
+            if (savedSession && savedUsername) {
+                // Kullanıcı zaten giriş yapmış, ana sayfayı göster
+                sessionToken = savedSession;
+                currentUser = savedUsername;
+                document.getElementById('initialLoginScreen').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                showUserPanel();
+            } else if (isAnonymous === 'true') {
+                // Anonim kullanıcı, ana sayfayı göster
+                document.getElementById('initialLoginScreen').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                document.getElementById('topLoginBtn').style.display = 'inline-block';
+                document.getElementById('userSection').style.display = 'none';
+                document.getElementById('anonymousPanel').style.display = 'block';
+            } else {
+                // Kullanıcı giriş yapmamış, ilk giriş ekranını göster
+                document.getElementById('initialLoginScreen').style.display = 'flex';
+                document.getElementById('mainContainer').style.display = 'none';
+            }
+        });
+
+        // Tab değiştirme
+        // Tab değiştirme (artık gerekli değil)
+        function switchTab(tab) {
+            // Bu fonksiyon artık kullanılmıyor
+        }
+
+        // Kullanıcı kayıt (artık gerekli değil)
+        async function register() {
+            // Bu fonksiyon artık kullanılmıyor
+        }
+
+        // Kullanıcı giriş (artık gerekli değil)
+        async function login() {
+            // Bu fonksiyon artık kullanılmıyor
+        }
+
+        // Anonim devam et
+        function continueAsGuest() {
+            document.getElementById('userSection').style.display = 'none';
+            showResult('success', 'Anonim olarak devam ediyorsunuz. Dosyalarınız herkese açık olacak.');
+        }
+
+        // Kullanıcı panelini göster
+        function showUserPanel() {
+            document.getElementById('userSection').style.display = 'none';
+            document.getElementById('userPanel').style.display = 'block';
+            document.getElementById('welcomeUsername').textContent = currentUser;
+        }
+
+        // Çıkış yap
+        async function logout() {
+            if (sessionToken) {
+                try {
+                    await fetch('/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${sessionToken}`
+                        }
+                    });
+                } catch (error) {
+                    console.log('Logout error:', error);
+                }
+            }
+
+            sessionToken = null;
+            currentUser = null;
+            localStorage.removeItem('sessionToken');
+            localStorage.removeItem('username');
+            localStorage.removeItem('isAnonymous');
+
+            document.getElementById('userPanel').style.display = 'none';
+            document.getElementById('userSection').style.display = 'block';
+            document.getElementById('anonymousPanel').style.display = 'none';
+            hideAllSections();
+            showResult('success', 'Çıkış yapıldı!');
+            
+            // Üstteki giriş butonunu göster
+            document.getElementById('topLoginBtn').style.display = 'inline-block';
+        }
+
+        // Dosya arama formunu göster
+        function showSearchForm() {
+            document.getElementById('searchSection').style.display = 'block';
+            document.getElementById('myFilesSection').style.display = 'none';
+        }
+
+        // Dosya arama formunu gizle
+        function hideSearchForm() {
+            document.getElementById('searchSection').style.display = 'none';
+            document.getElementById('searchResults').innerHTML = '';
+        }
+
+        // Kullanıcı dosyalarını ara
+        async function searchUserFiles() {
+            const username = document.getElementById('searchUsername').value.trim().toLowerCase();
+            const resultsContainer = document.getElementById('searchResults');
+
+            if (!username) {
+                showResult('error', 'Lütfen kullanıcı adı girin!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/search/${username}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.files.length === 0) {
+                        resultsContainer.innerHTML = '<div class="empty-state">Bu kullanıcının paylaştığı dosya bulunamadı.</div>';
+                    } else {
+                        resultsContainer.innerHTML = `
+                            <h4 style="color: var(--text-primary); margin-bottom: 20px;">
+                                ${data.username} kullanıcısının dosyaları (${data.totalFiles} dosya)
+                            </h4>
+                            ${data.files.map(file => createFileItemHTML(file)).join('')}
+                        `;
+                    }
+                } else {
+                    resultsContainer.innerHTML = '<div class="empty-state">Kullanıcı bulunamadı.</div>';
+                }
+            } catch (error) {
+                resultsContainer.innerHTML = '<div class="empty-state">Arama hatası!</div>';
+            }
+        }
+
+        // Dosyalarım panelini göster
+        async function showMyFiles() {
+            if (!sessionToken) {
+                showResult('error', 'Önce giriş yapmalısınız!');
+                return;
+            }
+
+            document.getElementById('myFilesSection').style.display = 'block';
+            document.getElementById('searchSection').style.display = 'none';
+
+            try {
+                const response = await fetch('/my-files', {
+                    headers: {
+                        'Authorization': `Bearer ${sessionToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const filesList = document.getElementById('myFilesList');
+                    
+                    if (data.files.length === 0) {
+                        filesList.innerHTML = '<div class="empty-state">Henüz dosya yüklememişsiniz.</div>';
+                    } else {
+                        filesList.innerHTML = data.files.map(file => createFileItemHTML(file, true)).join('');
+                    }
+                } else {
+                    showResult('error', data.error);
+                }
+            } catch (error) {
+                showResult('error', 'Dosya listesi yüklenemedi!');
+            }
+        }
+
+        // Dosyalarım panelini gizle
+        function hideMyFiles() {
+            document.getElementById('myFilesSection').style.display = 'none';
+        }
+
+        // Tüm bölümleri gizle
+        function hideAllSections() {
+            document.getElementById('searchSection').style.display = 'none';
+            document.getElementById('myFilesSection').style.display = 'none';
+        }
+
+        // Dosya öğesi HTML'i oluştur
+        function createFileItemHTML(file, isOwner = false) {
+            const uploadDate = new Date(file.uploadDate).toLocaleDateString('tr-TR');
+            const fileSize = formatFileSize(file.size);
+            
+            // İndirme linki (session token gerekli değil)
+            const downloadUrl = file.downloadUrl;
+            
+            return `
+                <div class="file-item">
+                    <div class="file-header">
+                        <div class="file-name">${file.originalName}</div>
+                        <div class="file-meta">
+                            <span>📅 ${uploadDate}</span>
+                            <span>📊 ${fileSize}</span>
+                            <span>⬇️ ${file.downloadCount} indirme</span>
+                            ${file.isPasswordProtected ? '<span>🔒 Şifreli</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn-small" onclick="copyToClipboard('${downloadUrl}')">📋 Kopyala</button>
+                        <button class="btn-small" onclick="window.open('${downloadUrl}', '_blank')">⬇️ İndir</button>
+                        ${isOwner ? `
+                            <button class="visibility-toggle ${file.isPublic ? 'public' : 'private'}" 
+                                    onclick="toggleFileVisibility('${file.id}', ${file.isPublic})">
+                                ${file.isPublic ? '🌐 Herkese Açık' : '🔒 Özel'}
+                            </button>
+                            <button class="btn-small delete-btn" onclick="deleteFile('${file.id}', '${file.originalName}')">🗑️ Temizle</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Dosya erişim kontrolünü değiştir
+        async function toggleFileVisibility(fileId, currentVisibility) {
+            if (!sessionToken) {
+                showResult('error', 'Önce giriş yapmalısınız!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/file/${fileId}/visibility`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionToken}`
+                    },
+                    body: JSON.stringify({ isPublic: !currentVisibility })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult('success', data.message);
+                    showMyFiles(); // Listeyi yenile
+                } else {
+                    showResult('error', data.error);
+                }
+            } catch (error) {
+                showResult('error', 'Erişim kontrolü güncellenemedi!');
+            }
+        }
+
+        // Dosya silme fonksiyonu
+        async function deleteFile(fileId, fileName) {
+            if (!sessionToken) {
+                showResult('error', 'Önce giriş yapmalısınız!');
+                return;
+            }
+
+            // Güzel uyarı dialog'u
+            const confirmDialog = document.createElement('div');
+            confirmDialog.className = 'confirm-dialog-overlay';
+            confirmDialog.innerHTML = `
+                <div class="confirm-dialog">
+                    <div class="confirm-header">
+                        <div class="confirm-icon">⚠️</div>
+                        <h3>Dosya Silme Onayı</h3>
+                    </div>
+                    <div class="confirm-body">
+                        <p><strong>"${fileName}"</strong> dosyasını silmek istediğinizden emin misiniz?</p>
+                        <p class="warning-text">⚠️ Bu işlem geri alınamaz!</p>
+                        <p class="info-text">📁 Dosya hem sunucudan hem de veritabanından tamamen silinecek.</p>
+                    </div>
+                    <div class="confirm-actions">
+                        <button class="btn-cancel" onclick="closeConfirmDialog()">❌ İptal</button>
+                        <button class="btn-delete" onclick="confirmDelete('${fileId}', '${fileName}')">🗑️ Sil</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(confirmDialog);
+            
+            // ESC tuşu ile kapatma
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeConfirmDialog();
+                }
+            });
+            
+            // Silme sesi çal
+            playSound('delete');
+        }
+
+        // Onay dialog'unu kapat
+        function closeConfirmDialog() {
+            const dialog = document.querySelector('.confirm-dialog-overlay');
+            if (dialog) {
+                dialog.remove();
+            }
+        }
+
+        // Silme işlemini onayla
+        async function confirmDelete(fileId, fileName) {
+            closeConfirmDialog();
+            
+            try {
+                const response = await fetch(`/file/${fileId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${sessionToken}`
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showResult('success', data.message);
+                    // Dosyalarım listesini yenile
+                    showMyFiles();
+                } else {
+                    showResult('error', data.error);
+                }
+            } catch (error) {
+                showResult('error', 'Dosya silme hatası!');
+            }
+        }
+
+        // Theme toggle functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (body.classList.contains('light-theme')) {
+                body.classList.remove('light-theme');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.add('light-theme');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Load saved theme
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-theme');
+                themeIcon.textContent = '☀️';
+            } else {
+                themeIcon.textContent = '🌙';
+            }
+        });
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const result = document.getElementById('result');
+        const loading = document.getElementById('loading');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercentage = document.getElementById('progressPercentage');
+        const progressFileName = document.getElementById('progressFileName');
+        const uploadSpeed = document.getElementById('uploadSpeed');
+        
+        let currentXHR = null;
+        let uploadStartTime = null;
+
+        // Drag & Drop olayları
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Şifreli paylaşım fonksiyonları
+        function togglePasswordInput() {
+            const enablePassword = document.getElementById('enablePassword');
+            const passwordInputGroup = document.getElementById('passwordInputGroup');
+            const filePassword = document.getElementById('filePassword');
+            
+            if (enablePassword.checked) {
+                passwordInputGroup.style.display = 'block';
+                filePassword.focus();
+            } else {
+                passwordInputGroup.style.display = 'none';
+                filePassword.value = '';
+            }
+        }
+
+        function validatePassword(password) {
+            if (!password) return false;
+            if (password.length < 4 || password.length > 12) return false;
+            if (password.includes(' ')) return false;
+            return true;
+        }
+
+        function showPasswordSection() {
+            const passwordSection = document.getElementById('passwordSection');
+            const shareBtn = document.getElementById('shareBtn');
+            passwordSection.style.display = 'block';
+            shareBtn.style.display = 'inline-block';
+            shareBtn.disabled = false;
+            shareBtn.textContent = '🚀 Dosyayı Paylaş';
+            shareBtn.style.opacity = '1';
+            shareBtn.style.cursor = 'pointer';
+        }
+
+        function hidePasswordSection() {
+            const passwordSection = document.getElementById('passwordSection');
+            const shareBtn = document.getElementById('shareBtn');
+            const enablePassword = document.getElementById('enablePassword');
+            const filePassword = document.getElementById('filePassword');
+            
+            passwordSection.style.display = 'none';
+            shareBtn.style.display = 'none';
+            shareBtn.disabled = false;
+            shareBtn.textContent = '🚀 Dosyayı Paylaş';
+            shareBtn.style.opacity = '1';
+            shareBtn.style.cursor = 'pointer';
+            enablePassword.checked = false;
+            filePassword.value = '';
+            togglePasswordInput();
+        }
+
+        function resetUploadInterface() {
+            // Dosya seçimini sıfırla
+            window.selectedFile = null;
+            document.getElementById('fileInput').value = '';
+            
+            // Paylaş butonunu sıfırla
+            const shareBtn = document.getElementById('shareBtn');
+            shareBtn.disabled = false;
+            shareBtn.textContent = '🚀 Dosyayı Paylaş';
+            shareBtn.style.opacity = '1';
+            shareBtn.style.cursor = 'pointer';
+            
+            // Arayüzü sıfırla
+            hidePasswordSection();
+            
+            // Sonuçları temizle
+            const result = document.getElementById('result');
+            result.style.display = 'none';
+            result.innerHTML = '';
+            
+            // Dosya seçildi bildirimini kapat
+            closeFileSelectedNotification();
+        }
+
+        function shareFile() {
+            // Spam koruması - buton zaten devre dışıysa çık
+            const shareBtn = document.getElementById('shareBtn');
+            if (shareBtn.disabled) {
+                return;
+            }
+
+            if (!window.selectedFile) {
+                showResult('error', 'Lütfen önce bir dosya seçin!');
+                return;
+            }
+
+            const enablePassword = document.getElementById('enablePassword');
+            const filePassword = document.getElementById('filePassword');
+            
+            // Şifre kontrolü
+            if (enablePassword.checked) {
+                if (!validatePassword(filePassword.value)) {
+                    showResult('error', 'Şifre en az 4, en fazla 12 karakter olmalı ve boşluk içermemelidir!');
+                    return;
+                }
+            }
+
+            // Butonu devre dışı bırak (spam koruması)
+            shareBtn.disabled = true;
+            shareBtn.textContent = '📤 Yükleniyor...';
+            shareBtn.style.opacity = '0.6';
+            shareBtn.style.cursor = 'not-allowed';
+
+            // Dosyayı yükle
+            uploadFile(window.selectedFile, enablePassword.checked ? filePassword.value : null);
+        }
+
+        function handleFile(file) {
+            // Dosya boyutunu kontrol et (200MB)
+            if (file.size > 200 * 1024 * 1024) {
+                showResult('error', 'Dosya boyutu 200MB\'dan büyük olamaz!');
+                return;
+            }
+
+            // Dosyayı global değişkende sakla
+            window.selectedFile = file;
+            
+            // Dosya seçildi bildirimi göster
+            showFileSelectedNotification(file);
+            
+            // Tahtaya vurma sesi çal
+            playSound('notification');
+
+            // Şifreli paylaşım seçeneklerini göster
+            showPasswordSection();
+        }
+
+        // Dosya seçildi bildirimi
+        function showFileSelectedNotification(file) {
+            const fileSize = formatFileSize(file.size);
+            const fileName = file.name.length > 30 ? file.name.substring(0, 30) + '...' : file.name;
+            
+            // Mevcut bildirimi temizle
+            const existingNotification = document.getElementById('fileSelectedNotification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Yeni bildirim oluştur
+            const notification = document.createElement('div');
+            notification.id = 'fileSelectedNotification';
+            notification.className = 'file-selected-notification';
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-icon">✅</div>
+                    <div class="notification-text">
+                        <div class="notification-title">Dosya Seçildi!</div>
+                        <div class="notification-file">📁 ${fileName}</div>
+                        <div class="notification-size">📊 ${fileSize}</div>
+                    </div>
+                    <button class="notification-close" onclick="closeFileSelectedNotification()">×</button>
+                </div>
+            `;
+            
+            // Dosya seçim alanından sonra ekle
+            const fileInput = document.getElementById('fileInput');
+            fileInput.parentNode.insertBefore(notification, fileInput.nextSibling);
+            
+            // Animasyon için kısa bir gecikme
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+        }
+
+        // Dosya seçildi bildirimini kapat
+        function closeFileSelectedNotification() {
+            const notification = document.getElementById('fileSelectedNotification');
+            if (notification) {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }
+        }
+
+        function uploadFile(file, password = null) {
+            // Basit upload - chunk upload'ı geçici olarak devre dışı bırak
+            uploadFileNormal(file, password);
+        }
+
+        function uploadFileNormal(file, password = null) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // Şifre varsa ekle
+            if (password) {
+                formData.append('password', password);
+            }
+
+            // Session token varsa ekle
+            if (sessionToken) {
+                formData.append('sessionToken', sessionToken);
+            }
+
+                // Dosya özel olarak ayarla (varsayılan)
+                formData.append('isPublic', 'false');
+
+            // İlerleme barını göster
+            showProgressBar(file.name);
+            
+            // XMLHttpRequest ile gerçek ilerleme takibi
+            currentXHR = new XMLHttpRequest();
+            uploadStartTime = Date.now();
+
+            // İlerleme olayı
+            currentXHR.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    updateProgress(percentComplete, e.loaded, e.total);
+                }
+            });
+
+            // Başarılı yükleme
+            currentXHR.addEventListener('load', function() {
+                if (currentXHR.status === 200) {
+                    try {
+                        const data = JSON.parse(currentXHR.responseText);
+                        hideProgressBar();
+                        if (data.success) {
+                            showSuccessResult(data);
+                        } else {
+                            showResult('error', data.error || 'Dosya yükleme hatası!');
+                        }
+                    } catch (error) {
+                        hideProgressBar();
+                        showResult('error', 'Sunucu yanıtı işlenemedi!');
+                    }
+                } else {
+                    hideProgressBar();
+                    showResult('error', 'Dosya yükleme hatası!');
+                }
+            });
+
+            // Hata durumu
+            currentXHR.addEventListener('error', function() {
+                hideProgressBar();
+                showResult('error', 'Ağ hatası! Dosya yüklenemedi.');
+            });
+
+            // İptal durumu
+            currentXHR.addEventListener('abort', function() {
+                hideProgressBar();
+                showResult('error', 'Dosya yükleme iptal edildi.');
+            });
+
+            // İsteği gönder
+            currentXHR.open('POST', '/upload');
+            currentXHR.send(formData);
+        }
+
+        async function uploadFileInChunks(file, chunkSize) {
+            const totalChunks = Math.ceil(file.size / chunkSize);
+            
+            // İlerleme barını göster
+            showProgressBar(file.name);
+            
+            try {
+                // Chunk upload'ı başlat
+                const startResponse = await fetch('/upload/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fileName: file.name,
+                        fileSize: file.size,
+                        totalChunks: totalChunks,
+                        sessionToken: sessionToken,
+                        isPublic: false // Varsayılan olarak özel
+                    })
+                });
+
+                const startData = await startResponse.json();
+                if (!startData.success) {
+                    throw new Error(startData.error);
+                }
+
+                const uploadId = startData.uploadId;
+                let uploadedChunks = 0;
+
+                // Paralel chunk yükleme (8 chunk aynı anda) - maksimum hız
+                const CONCURRENT_CHUNKS = 8;
+                const uploadPromises = [];
+
+                // Tüm chunk'ları önceden hazırla
+                const allChunks = [];
+                for (let i = 0; i < totalChunks; i++) {
+                    const start = i * chunkSize;
+                    const end = Math.min(start + chunkSize, file.size);
+                    const chunk = file.slice(start, end);
+                    allChunks.push({ index: i, chunk: chunk });
+                }
+
+                // Chunk'ları paralel olarak yükle
+                for (let i = 0; i < totalChunks; i += CONCURRENT_CHUNKS) {
+                    const batchPromises = [];
+                    
+                    for (let j = 0; j < CONCURRENT_CHUNKS && (i + j) < totalChunks; j++) {
+                        const chunkData = allChunks[i + j];
+                        
+                        const formData = new FormData();
+                        formData.append('chunk', chunkData.chunk);
+                        formData.append('uploadId', uploadId);
+                        formData.append('chunkIndex', chunkData.index);
+                        formData.append('totalChunks', totalChunks);
+
+                        const promise = fetch('/upload/chunk', {
+                            method: 'POST',
+                            body: formData
+                        }).then(response => response.json());
+
+                        batchPromises.push(promise);
+                    }
+
+                    // Batch'i bekle
+                    const batchResults = await Promise.all(batchPromises);
+                    
+                    // İlerleme güncelle
+                    uploadedChunks += batchResults.length;
+                    const progress = Math.round((uploadedChunks / totalChunks) * 100);
+                    updateProgress(progress, uploadedChunks * chunkSize, file.size);
+
+                    // Hata kontrolü
+                    for (const result of batchResults) {
+                        if (!result.success) {
+                            throw new Error(result.error);
+                        }
+                    }
+                }
+
+                // Upload tamamlandı
+                hideProgressBar();
+                
+                // İndirme linki (session token gerekli değil)
+                const downloadUrl = `${window.location.origin}/download/${uploadId}`;
+                
+                showSuccessResult({
+                    success: true,
+                    fileId: uploadId,
+                    downloadUrl: downloadUrl,
+                    originalName: file.name,
+                    size: file.size
+                });
+
+            } catch (error) {
+                hideProgressBar();
+                showResult('error', 'Chunk upload hatası: ' + error.message);
+            }
+        }
+
+        function showProgressBar(fileName) {
+            loading.style.display = 'none';
+            result.style.display = 'none';
+            progressContainer.style.display = 'block';
+            
+            progressFileName.textContent = fileName;
+            progressPercentage.textContent = '0%';
+            progressFill.style.width = '0%';
+            uploadSpeed.textContent = '0 KB/s';
+        }
+
+        function updateProgress(percent, loaded, total) {
+            const roundedPercent = Math.round(percent);
+            progressPercentage.textContent = roundedPercent + '%';
+            progressFill.style.width = roundedPercent + '%';
+            
+            // Hız hesaplama
+            const elapsed = (Date.now() - uploadStartTime) / 1000; // saniye
+            if (elapsed > 0) {
+                const speed = loaded / elapsed; // bytes/saniye
+                const speedKB = speed / 1024;
+                const speedMB = speedKB / 1024;
+                
+                if (speedMB >= 1) {
+                    uploadSpeed.textContent = speedMB.toFixed(1) + ' MB/s';
+                } else {
+                    uploadSpeed.textContent = speedKB.toFixed(1) + ' KB/s';
+                }
+            }
+        }
+
+        function hideProgressBar() {
+            progressContainer.style.display = 'none';
+            currentXHR = null;
+            uploadStartTime = null;
+        }
+
+        function cancelUpload() {
+            if (currentXHR) {
+                currentXHR.abort();
+                hideProgressBar();
+                playSound('cancel'); // Yumuşak iptal sesi
+                showResult('error', 'Dosya yükleme iptal edildi.');
+            }
+        }
+
+        function showSuccessResult(data) {
+            const fileSize = formatFileSize(data.size);
+            const isPasswordProtected = data.isPasswordProtected;
+            
+            // Başarı sesi çal
+            playSound('success');
+            
+            // Arayüzü sıfırla
+            resetUploadInterface();
+            
+            // İndirme linki (session token gerekli değil)
+            const downloadUrl = data.downloadUrl;
+            
+            result.innerHTML = `
+                <div class="file-info">
+                    <h3>✅ Dosya başarıyla yüklendi!</h3>
+                    <p><strong>Dosya Adı:</strong> ${data.originalName}</p>
+                    <p><strong>Dosya Boyutu:</strong> ${fileSize}</p>
+                    ${isPasswordProtected ? '<p><strong>🔒 Güvenlik:</strong> Şifre ile korumalı</p>' : ''}
+                </div>
+                
+                <div class="download-link">
+                    <strong>İndirme Linki:</strong><br>
+                    <span id="downloadUrl">${downloadUrl}</span>
+                    <button class="copy-btn" onclick="copyToClipboard('${downloadUrl}')">Kopyala</button>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button class="copy-btn" onclick="generateQRCodeInline('${downloadUrl}')">
+                        📱 QR Kod Oluştur
+                    </button>
+                </div>
+                
+                <div id="qrCodeContainerInline" style="display: none; margin-top: 20px; text-align: center;">
+                    <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 15px; border: 1px solid var(--border-color);">
+                        <h3 style="color: var(--text-primary); margin-bottom: 15px;">📱 QR Kod</h3>
+                        <img id="qrCodeImageInline" style="max-width: 200px; border-radius: 10px;" />
+                        <p style="color: var(--text-secondary); margin-top: 10px; font-size: 0.9em;">
+                            QR kodu tarayarak dosyaya erişebilirsiniz
+                        </p>
+                    </div>
+                </div>
+                
+                <p style="margin-top: 20px; color: var(--text-secondary);">
+                    ${isPasswordProtected ? 
+                        'Bu dosya şifre ile korunmaktadır. İndirmek için şifre gereklidir.' : 
+                        'Bu linki paylaşarak herkes dosyanızı indirebilir.'
+                    }
+                </p>
+                
+                <div style="margin-top: 30px;">
+                    <button class="btn" onclick="resetUploadInterface()" style="background: var(--accent-secondary);">
+                        📁 Yeni Dosya Yükle
+                    </button>
+                </div>
+            `;
+            
+            result.className = 'result success';
+            result.style.display = 'block';
+        }
+
+        function showResult(type, message) {
+            result.innerHTML = message;
+            result.className = `result ${type}`;
+            result.style.display = 'block';
+            
+            // Hata durumunda butonu sıfırla
+            if (type === 'error') {
+                const shareBtn = document.getElementById('shareBtn');
+                shareBtn.disabled = false;
+                shareBtn.textContent = '🚀 Dosyayı Paylaş';
+                shareBtn.style.opacity = '1';
+                shareBtn.style.cursor = 'pointer';
+            }
+            
+            // Hata sesi çal
+            if (type === 'error') {
+                playSound('error');
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Kopyalandı!';
+                btn.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#28a745';
+                }, 2000);
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Ses kontrolü
+        let soundEnabled = true;
+
+        // Sayfa yüklendiğinde ses tercihini geri yükle
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedSoundPreference = localStorage.getItem('soundEnabled');
+            if (savedSoundPreference !== null) {
+                soundEnabled = savedSoundPreference === 'true';
+                updateSoundIcon();
+            }
+        });
+
+        // Ses açma/kapama
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('soundEnabled', soundEnabled);
+            updateSoundIcon();
+            
+            // Ses değişikliği için kısa bir ses çal
+            if (soundEnabled) {
+                playSound('success');
+            }
+        }
+
+        // Ses ikonunu güncelle
+        function updateSoundIcon() {
+            const soundIcon = document.getElementById('soundIcon');
+            const soundToggle = document.querySelector('.sound-toggle');
+            
+            if (soundEnabled) {
+                soundIcon.textContent = '🔊';
+                soundToggle.classList.remove('muted');
+            } else {
+                soundIcon.textContent = '🔇';
+                soundToggle.classList.add('muted');
+            }
+        }
+
+        // Ses efektleri
+        function playSound(type) {
+            if (!soundEnabled) return;
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                let frequency, duration, waveType;
+                
+                switch(type) {
+                    case 'success':
+                        // Yumuşak başarı sesi - "ding"
+                        frequency = 1000;
+                        duration = 0.25;
+                        waveType = 'sine';
+                        break;
+                    case 'error':
+                        // Yumuşak uyarı sesi - "bip bip"
+                        frequency = 400;
+                        duration = 0.3;
+                        waveType = 'sine';
+                        break;
+                    case 'warning':
+                        // Çift tonlu uyarı sesi - "bip-bip"
+                        const warningAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        
+                        // İlk bip
+                        const warningOscillator1 = warningAudioContext.createOscillator();
+                        const warningGainNode1 = warningAudioContext.createGain();
+                        
+                        warningOscillator1.connect(warningGainNode1);
+                        warningGainNode1.connect(warningAudioContext.destination);
+                        
+                        warningOscillator1.frequency.setValueAtTime(600, warningAudioContext.currentTime);
+                        warningOscillator1.type = 'sine';
+                        
+                        warningGainNode1.gain.setValueAtTime(0.1, warningAudioContext.currentTime);
+                        warningGainNode1.gain.exponentialRampToValueAtTime(0.01, warningAudioContext.currentTime + 0.15);
+                        
+                        warningOscillator1.start(warningAudioContext.currentTime);
+                        warningOscillator1.stop(warningAudioContext.currentTime + 0.15);
+                        
+                        // İkinci bip (kısa gecikme ile)
+                        setTimeout(() => {
+                            const warningOscillator2 = warningAudioContext.createOscillator();
+                            const warningGainNode2 = warningAudioContext.createGain();
+                            
+                            warningOscillator2.connect(warningGainNode2);
+                            warningGainNode2.connect(warningAudioContext.destination);
+                            
+                            warningOscillator2.frequency.setValueAtTime(600, warningAudioContext.currentTime);
+                            warningOscillator2.type = 'sine';
+                            
+                            warningGainNode2.gain.setValueAtTime(0.1, warningAudioContext.currentTime);
+                            warningGainNode2.gain.exponentialRampToValueAtTime(0.01, warningAudioContext.currentTime + 0.15);
+                            
+                            warningOscillator2.start(warningAudioContext.currentTime);
+                            warningOscillator2.stop(warningAudioContext.currentTime + 0.15);
+                        }, 200);
+                        
+                        return; // Özel ses için erken çık
+                    case 'upload':
+                        // Yumuşak upload sesi - "tick"
+                        frequency = 1200;
+                        duration = 0.1;
+                        waveType = 'sine';
+                        break;
+                    case 'cancel':
+                        // Yumuşak iptal sesi - "bop"
+                        frequency = 350;
+                        duration = 0.15;
+                        waveType = 'sine';
+                        break;
+                    case 'notification':
+                        // Tahtaya vurma sesi - "dınkk" - Çift tonlu
+                        // İlk ton: Yüksek frekans (tahtaya vurma)
+                        // İkinci ton: Düşük frekans (tahtanın titreşimi)
+                        const notificationAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        
+                        // İlk ton - Tahtaya vurma
+                        const notificationOscillator1 = notificationAudioContext.createOscillator();
+                        const notificationGainNode1 = notificationAudioContext.createGain();
+                        
+                        notificationOscillator1.connect(notificationGainNode1);
+                        notificationGainNode1.connect(notificationAudioContext.destination);
+                        
+                        notificationOscillator1.frequency.setValueAtTime(1200, notificationAudioContext.currentTime);
+                        notificationOscillator1.type = 'sine';
+                        
+                        notificationGainNode1.gain.setValueAtTime(0.15, notificationAudioContext.currentTime);
+                        notificationGainNode1.gain.exponentialRampToValueAtTime(0.01, notificationAudioContext.currentTime + 0.1);
+                        
+                        notificationOscillator1.start(notificationAudioContext.currentTime);
+                        notificationOscillator1.stop(notificationAudioContext.currentTime + 0.1);
+                        
+                        // İkinci ton - Tahtanın titreşimi
+                        setTimeout(() => {
+                            const notificationOscillator2 = notificationAudioContext.createOscillator();
+                            const notificationGainNode2 = notificationAudioContext.createGain();
+                            
+                            notificationOscillator2.connect(notificationGainNode2);
+                            notificationGainNode2.connect(notificationAudioContext.destination);
+                            
+                            notificationOscillator2.frequency.setValueAtTime(400, notificationAudioContext.currentTime);
+                            notificationOscillator2.type = 'sine';
+                            
+                            notificationGainNode2.gain.setValueAtTime(0.1, notificationAudioContext.currentTime);
+                            notificationGainNode2.gain.exponentialRampToValueAtTime(0.01, notificationAudioContext.currentTime + 0.2);
+                            
+                            notificationOscillator2.start(notificationAudioContext.currentTime);
+                            notificationOscillator2.stop(notificationAudioContext.currentTime + 0.2);
+                        }, 50);
+                        
+                        return; // Özel ses için erken çık
+                    default:
+                        frequency = 500;
+                        duration = 0.2;
+                        waveType = 'sine';
+                }
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = waveType;
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (error) {
+                console.log('Ses çalınamadı:', error);
+            }
+        }
+
+        // QR kod oluşturma (inline)
+        function generateQRCodeInline(downloadUrl) {
+            const qrContainer = document.getElementById('qrCodeContainerInline');
+            const qrImage = document.getElementById('qrCodeImageInline');
+            
+            // Loading göster
+            qrImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzMzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkxvYWRpbmcuLi48L3RleHQ+PC9zdmc+';
+            qrContainer.style.display = 'block';
+            
+            fetch(`/qr/${downloadUrl.split('/').pop()}`)
+                .then(response => response.json())
+                .then(data => {
+                    qrImage.src = data.qrCode;
+                    playSound('success');
+                })
+                .catch(error => {
+                    console.error('QR Code error:', error);
+                    qrImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmY0NzU3Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yPC90ZXh0Pjwvc3ZnPg==';
+                    playSound('error');
+                });
+        }
+    </script>
+</body>
+</html>

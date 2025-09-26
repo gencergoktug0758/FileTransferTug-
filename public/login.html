@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap - DosyaPaylaşım</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent-primary: #4a9eff;
+            --accent-secondary: #357abd;
+            --warning-color: #ff6b35;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+        }
+
+        .light-theme {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --accent-primary: #2196f3;
+            --accent-secondary: #1976d2;
+            --warning-color: #ff9800;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .login-container {
+            background: var(--bg-primary);
+            border-radius: 25px;
+            padding: 50px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--accent-primary);
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--accent-primary);
+            transform: scale(1.1);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header h1 {
+            font-size: 2.5em;
+            margin: 0 0 15px 0;
+            color: var(--accent-primary);
+            font-weight: 800;
+        }
+
+        .login-header p {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .user-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--bg-secondary);
+            border-radius: 15px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: var(--bg-primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            background: var(--accent-primary);
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .result.success {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--success-color);
+            border: 2px solid var(--success-color);
+        }
+
+        .result.error {
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--error-color);
+            border: 2px solid var(--error-color);
+        }
+
+        .password-requirements {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent-primary);
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 30px;
+            }
+
+            .login-header h1 {
+                font-size: 2em;
+            }
+        }
+        /* Responsive Tasarım */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .login-container {
+                width: 100%;
+                max-width: 400px;
+                padding: 30px 20px;
+                margin: 0;
+            }
+            
+            .login-header h1 {
+                font-size: 2rem;
+            }
+            
+            .login-header p {
+                font-size: 1rem;
+            }
+            
+            .tab-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .tab-button {
+                width: 100%;
+                padding: 15px;
+                font-size: 1rem;
+            }
+            
+            .form-group {
+                margin-bottom: 20px;
+            }
+            
+            .form-group label {
+                font-size: 0.9rem;
+            }
+            
+            .form-group input {
+                padding: 12px 15px;
+                font-size: 1rem;
+            }
+            
+            .login-button {
+                padding: 15px;
+                font-size: 1rem;
+                width: 100%;
+            }
+            
+            .back-button {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .theme-toggle {
+                top: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            .login-container {
+                padding: 25px 15px;
+            }
+            
+            .login-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .login-header p {
+                font-size: 0.9rem;
+            }
+            
+            .form-group input {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .login-button {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+            
+            .back-button {
+                padding: 10px 15px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <div class="theme-toggle" onclick="toggleTheme()">
+            <span id="themeIcon">🌙</span>
+        </div>
+
+        <div class="login-header">
+            <h1>🔐 Giriş Yap</h1>
+            <p>Hesabınıza giriş yapın veya yeni hesap oluşturun</p>
+        </div>
+
+        <div class="user-tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">Giriş Yap</button>
+            <button class="tab-btn" onclick="switchTab('register')">Kayıt Ol</button>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <!-- Giriş Formu -->
+        <div id="loginTab" class="tab-content active">
+            <form onsubmit="login(event)">
+                <div class="form-group">
+                    <label for="loginUsername">Kullanıcı Adı:</label>
+                    <input type="text" id="loginUsername" placeholder="Kullanıcı adınızı girin" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Şifre:</label>
+                    <input type="password" id="loginPassword" placeholder="Şifrenizi girin" required>
+                </div>
+                <button type="submit" class="btn">🚀 Giriş Yap</button>
+            </form>
+        </div>
+
+        <!-- Kayıt Formu -->
+        <div id="registerTab" class="tab-content">
+            <form onsubmit="register(event)">
+                <div class="form-group">
+                    <label for="registerUsername">Kullanıcı Adı:</label>
+                    <input type="text" id="registerUsername" placeholder="Kullanıcı adınızı girin" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Şifre:</label>
+                    <input type="password" id="registerPassword" placeholder="En az 8 karakter, büyük harf, küçük harf, rakam ve özel karakter" required>
+                    <div class="password-requirements">
+                        Şifre en az 8 karakter olmalı ve büyük harf, küçük harf, rakam ve özel karakter içermelidir
+                    </div>
+                </div>
+                <button type="submit" class="btn">📝 Kayıt Ol</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Kullanıcı sistemi değişkenleri
+        let sessionToken = null;
+        let currentUser = null;
+
+        // Geri dön
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        // Tab değiştirme
+        function switchTab(tab) {
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+            const loginBtn = document.querySelector('.tab-btn:first-child');
+            const registerBtn = document.querySelector('.tab-btn:last-child');
+
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginBtn.classList.add('active');
+                registerBtn.classList.remove('active');
+            } else {
+                loginTab.classList.remove('active');
+                registerTab.classList.add('active');
+                loginBtn.classList.remove('active');
+                registerBtn.classList.add('active');
+            }
+        }
+
+        // Sonuç göster
+        function showResult(type, message) {
+            const result = document.getElementById('result');
+            result.innerHTML = message;
+            result.className = `result ${type}`;
+            result.style.display = 'block';
+        }
+
+        // Giriş yap
+        async function login(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showResult('error', 'Lütfen tüm alanları doldurun!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    sessionToken = data.sessionToken;
+                    currentUser = data.username;
+                    
+                    localStorage.setItem('sessionToken', sessionToken);
+                    localStorage.setItem('username', currentUser);
+                    localStorage.removeItem('isAnonymous');
+                    
+                    showResult('success', 'Giriş başarılı! Ana sayfaya yönlendiriliyorsunuz...');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1500);
+                } else {
+                    showResult('error', data.error);
+                }
+            } catch (error) {
+                showResult('error', 'Giriş hatası!');
+            }
+        }
+
+        // Kayıt ol
+        async function register(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value;
+
+            if (!username || !password) {
+                showResult('error', 'Lütfen tüm alanları doldurun!');
+                return;
+            }
+
+            if (username.length < 3 || username.length > 20) {
+                showResult('error', 'Kullanıcı adı 3-20 karakter arasında olmalıdır!');
+                return;
+            }
+
+            // Güçlü şifre kontrolü
+            if (password.length < 8 || password.length > 128) {
+                showResult('error', 'Şifre 8-128 karakter arasında olmalıdır!');
+                return;
+            }
+
+            // Şifre karmaşıklığı kontrolü
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumbers = /\d/.test(password);
+            const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+            
+            if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
+                showResult('error', 'Şifre en az 1 büyük harf, 1 küçük harf, 1 rakam ve 1 özel karakter içermelidir!');
+                return;
+            }
+
+            // Yaygın şifreler kontrolü
+            const commonPasswords = ['password', '123456', 'qwerty', 'abc123', 'password123', 'admin', 'user', 'test'];
+            if (commonPasswords.includes(password.toLowerCase())) {
+                showResult('error', 'Bu şifre çok yaygın kullanılıyor! Daha güvenli bir şifre seçin.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult('success', 'Kayıt başarılı! Giriş yapabilirsiniz.');
+                    switchTab('login');
+                    document.getElementById('loginUsername').value = username;
+                } else {
+                    showResult('error', data.error);
+                }
+            } catch (error) {
+                showResult('error', 'Kayıt hatası!');
+            }
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (body.classList.contains('light-theme')) {
+                body.classList.remove('light-theme');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.add('light-theme');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Sayfa yüklendiğinde tema kontrolü
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-theme');
+                document.getElementById('themeIcon').textContent = '☀️';
+            }
+        });
+    </script>
+</body>
+</html>
