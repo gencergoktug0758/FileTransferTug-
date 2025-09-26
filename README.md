@@ -286,7 +286,7 @@ Hata bulduysanız lütfen [Issues](https://github.com/gencergoktug0758/FileTrans
 
 - **Proje Sahibi**: [gencergoktug0758](https://github.com/gencergoktug0758)
 - **E-posta**: gencergoktug5807@gmail.com
-- **Proje Linki**: [https://github.com/gencergoktug0758/FileTransferTug](https://github.com/gencergoktug0758/FileTransferTug)
+- **Proje Linki**: [https://github.com/gencergoktug0758/FileTransferTug](https://github.com/gencergoktug0758/FileTransferTug-)
 
 ## 🙏 Teşekkürler
 
