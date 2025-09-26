@@ -37,10 +37,14 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(express.json());
 
-// Ana sayfa - Railway healthcheck için optimize edildi (static middleware'den önce)
+// Ana sayfa - Normal kullanıcılar için
 app.get('/', (req, res) => {
-  // Railway healthcheck için basit response
-  res.status(200).send('✅ Server is running!');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Ana sayfa için ayrı endpoint
+app.get('/home', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.use(express.static('public'));
