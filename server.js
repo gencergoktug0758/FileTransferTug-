@@ -20,14 +20,14 @@ if (process.env.NODE_ENV === 'production') {
 
 // Middleware
 app.use(compression()); // Gzip compression
-// HTTPS zorunluluğu (güvenlik için)
+// HTTPS zorunluluğu (güvenlik için) - Railway için optimize edildi
 app.use((req, res, next) => {
-  // Development ortamında ve Railway'de HTTPS kontrolü yapma
-  if (process.env.NODE_ENV !== 'production' || req.get('host') === 'localhost:3000') {
+  // Railway'de HTTPS kontrolü yapma - healthcheck'i engelleyebilir
+  if (process.env.RAILWAY_ENVIRONMENT || process.env.NODE_ENV !== 'production') {
     return next();
   }
   
-  // Production ortamında HTTPS kontrolü
+  // Sadece production ortamında ve Railway dışında HTTPS kontrolü
   if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
     return res.redirect(`https://${req.get('host')}${req.url}`);
   }
@@ -45,8 +45,14 @@ app.get('/login.html', (req, res) => {
 app.use('/uploads', express.static('uploads'));
 
 // Uploads ve database klasörlerini oluştur
-fs.ensureDirSync('uploads');
-fs.ensureDirSync('database');
+try {
+  fs.ensureDirSync('uploads');
+  fs.ensureDirSync('database');
+  console.log('✅ Klasörler başarıyla oluşturuldu');
+} catch (error) {
+  console.error('❌ Klasör oluşturma hatası:', error);
+  // Hata durumunda da devam et
+}
 
 // Veritabanı şifreleme anahtarı (256-bit güvenli anahtar - gerçek projede environment variable kullanın)
 const DB_ENCRYPTION_KEY = crypto.scryptSync('FileTransferTug2024SecureKey!@#$%^&*()_+{}|:"<>?[]\\;\',./`~', 'salt', 32);
@@ -238,6 +244,16 @@ const rateLimit = (req, res, next) => {
 
 // Güvenlik middleware'i
 app.use(rateLimit);
+
+// Railway healthcheck endpoint'i
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
 
 // Ana sayfa
 app.get('/', (req, res) => {
@@ -1067,7 +1083,41 @@ app.get('/qr/:fileId', async (req, res) => {
 });
 
 // Sunucuyu başlat
-app.listen(PORT, () => {
-  console.log(`Server ${PORT} portunda çalışıyor`);
-  console.log(`http://localhost:${PORT} adresinden erişebilirsiniz`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server ${PORT} portunda çalışıyor`);
+  console.log(`🌐 http://localhost:${PORT} adresinden erişebilirsiniz`);
+  console.log(`🏥 Healthcheck: http://localhost:${PORT}/health`);
+  
+  // Railway için özel log
+  if (process.env.RAILWAY_ENVIRONMENT) {
+    console.log('🚂 Railway ortamında çalışıyor');
+  }
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('🛑 SIGTERM alındı, sunucu kapatılıyor...');
+  server.close(() => {
+    console.log('✅ Sunucu başarıyla kapatıldı');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 SIGINT alındı, sunucu kapatılıyor...');
+  server.close(() => {
+    console.log('✅ Sunucu başarıyla kapatıldı');
+    process.exit(0);
+  });
+});
+
+// Unhandled errors
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
 });
