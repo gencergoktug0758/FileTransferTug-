@@ -36,6 +36,13 @@ app.use((req, res, next) => {
 
 app.use(cors());
 app.use(express.json());
+
+// Ana sayfa - Railway healthcheck için optimize edildi (static middleware'den önce)
+app.get('/', (req, res) => {
+  // Railway healthcheck için basit response
+  res.status(200).send('✅ Server is running!');
+});
+
 app.use(express.static('public'));
 
 // Login sayfası için özel route
@@ -255,8 +262,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Ana sayfa
-app.get('/', (req, res) => {
+// Ana sayfa için ayrı endpoint
+app.get('/home', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
@@ -1082,8 +1089,8 @@ app.get('/qr/:fileId', async (req, res) => {
   }
 });
 
-// Sunucuyu başlat
-const server = app.listen(PORT, '0.0.0.0', () => {
+// Sunucuyu başlat - Railway için optimize edildi
+const server = app.listen(PORT, () => {
   console.log(`🚀 Server ${PORT} portunda çalışıyor`);
   console.log(`🌐 http://localhost:${PORT} adresinden erişebilirsiniz`);
   console.log(`🏥 Healthcheck: http://localhost:${PORT}/health`);

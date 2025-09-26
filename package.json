@@ -8,6 +8,7 @@
     "dev": "nodemon server.js",
     "build": "echo 'No build step required'",
     "health": "curl -f http://localhost:3000/health || exit 1",
+    "railway": "RAILWAY_ENVIRONMENT=production node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
